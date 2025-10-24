@@ -18,23 +18,31 @@ public class MeasurementService {
     this.sensorReadingRepository = sensorReadingRepository;
   }
 
-  public List<Double> getMeasurementValuesBySensorType(SensorType sensorType, LocalDateTime from,
-      LocalDateTime to) {
-    // TODO: Task 8
-    return List.of();
+  public List<Double> getMeasurementValuesBySensorType(SensorType sensorType, LocalDateTime from, LocalDateTime to) {
+    validPeriod(from, to);
+
+    return sensorReadingRepository.findByTimestampBetweenOrderByTimestampAsc(from, to).stream()
+      .filter(sr -> sr.getSensor().getType() == sensorType)
+      .mapToDouble(SensorReading::getValue)
+      .boxed()
+      .toList();
   }
 
   public Optional<Double> getAverageTemperature(LocalDateTime from, LocalDateTime to) {
-    if(from.isAfter(to)){
-      throw new IllegalArgumentException("'from' must be before 'to'");
-    }
+    validPeriod(from, to);
 
-    return sensorReadingRepository.findByTimestampBetween(from, to).stream()
-      .filter(sr-> SensorType.TEMPERATURE.equals(sr.getSensor().getType()))
+    return sensorReadingRepository.findByTimestampBetweenOrderByTimestampAsc(from, to).stream()
+      .filter(sr -> SensorType.TEMPERATURE.equals(sr.getSensor().getType()))
       .mapToDouble(SensorReading::getValue)
       .average()
       .stream()
       .boxed()
       .findFirst();
+  }
+
+  private static void validPeriod(LocalDateTime from, LocalDateTime to) {
+    if (from.isAfter(to)) {
+      throw new IllegalArgumentException("'from' must be before 'to'");
+    }
   }
 }
