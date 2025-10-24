@@ -10,12 +10,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-@Table(name = "sensors")
+@Table(name = "sensors", uniqueConstraints = @UniqueConstraint(columnNames = "name"))
 @Entity
 public class Sensor {
 
