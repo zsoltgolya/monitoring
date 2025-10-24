@@ -28,9 +28,9 @@ public class SensorReadingService {
 
   @Transactional
   public SensorReading saveSensorReading(SensorReadingDto sensorReadingDto) {
-    UUID id = sensorReadingDto.sensorId();
-    Sensor sensor = sensorRepository.findById(id)
-      .orElseThrow(()-> new EntityNotFoundException("Sensor not found with id: " + id));
+    UUID sensorId = sensorReadingDto.sensorId();
+    Sensor sensor = sensorRepository.findById(sensorId)
+      .orElseThrow(()-> new EntityNotFoundException("Sensor not found with id: " + sensorId));
 
     var sensorReading = sensorReadingMapper.toEntity(sensorReadingDto);
 
