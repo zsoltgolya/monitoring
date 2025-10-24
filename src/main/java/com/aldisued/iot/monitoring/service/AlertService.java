@@ -2,10 +2,12 @@ package com.aldisued.iot.monitoring.service;
 
 import com.aldisued.iot.monitoring.dto.AlertDto;
 import com.aldisued.iot.monitoring.entity.Alert;
+import com.aldisued.iot.monitoring.entity.Sensor;
 import com.aldisued.iot.monitoring.exception.AlertNotFoundException;
 import com.aldisued.iot.monitoring.mapper.AlertMapper;
 import com.aldisued.iot.monitoring.repository.AlertRepository;
 import com.aldisued.iot.monitoring.repository.SensorRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +17,7 @@ import java.util.UUID;
 @Service
 public class AlertService {
 
+  public static final String TOPIC_ALERTS = "alerts";
   private final AlertRepository alertRepository;
   private final SensorRepository sensorRepository;
   private final KafkaTemplate<String, AlertDto> kafkaTemplate;
@@ -28,9 +31,19 @@ public class AlertService {
     this.alertMapper = alertMapper;
   }
 
+  @Transactional
   public Alert saveAlert(AlertDto alertDto) {
-    // TODO: Task 6
-    return null;
+    UUID sensorId = alertDto.sensorId();
+    Sensor sensor = sensorRepository.findById(sensorId)
+      .orElseThrow(() -> new EntityNotFoundException("Sensor not found with id: " + sensorId));
+
+    Alert alert = alertMapper.toEntity(alertDto);
+    alert.setSensor(sensor);
+
+    Alert savedAlert = alertRepository.save(alert);
+    kafkaTemplate.send(TOPIC_ALERTS, alertDto);
+
+    return savedAlert;
   }
 
   @Transactional(readOnly = true)
