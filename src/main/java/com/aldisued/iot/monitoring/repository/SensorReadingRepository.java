@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface SensorReadingRepository extends JpaRepository<SensorReading, String> {
 
-  List<SensorReading> findByTimestampBetween(LocalDateTime from, LocalDateTime to);
+  List<SensorReading> findByTimestampBetweenOrderByTimestampAsc(LocalDateTime from, LocalDateTime to);
 }
