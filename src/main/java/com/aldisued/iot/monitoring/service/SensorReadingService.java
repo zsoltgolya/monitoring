@@ -33,7 +33,6 @@ public class SensorReadingService {
       .orElseThrow(()-> new EntityNotFoundException("Sensor not found with id: " + sensorId));
 
     var sensorReading = sensorReadingMapper.toEntity(sensorReadingDto);
-
     sensorReading.setSensor(sensor);
 
     return sensorReadingRepository.save(sensorReading);
